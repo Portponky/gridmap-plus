@@ -187,6 +187,9 @@ func _input(event) -> void:
 		if click and click.button_index == MOUSE_BUTTON_LEFT and click.pressed:
 			grid_map.set_cell_item(_trace.coord + _trace.inormal, toolbar.brush, normal_to_orientation(_trace.inormal))
 		
+		if click and click.button_index == MOUSE_BUTTON_MIDDLE and click.pressed:
+			toolbar.brush = grid_map.get_cell_item(_trace.coord)
+		
 		if click and click.button_index == MOUSE_BUTTON_RIGHT and click.pressed:
 			grid_map.set_cell_item(_trace.coord, GridMap.INVALID_CELL_ITEM)
 		
