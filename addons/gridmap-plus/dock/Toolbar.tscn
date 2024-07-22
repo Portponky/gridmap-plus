@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://0scd31ucka55"]
+
+[ext_resource type="Script" path="res://addons/gridmap-plus/dock/Toolbar.gd" id="1_o1d2f"]
+
+[node name="Toolbar" type="Node2D"]
+position = Vector2(40, 40)
+script = ExtResource("1_o1d2f")
+
+[node name="Sprite" type="Sprite2D" parent="."]

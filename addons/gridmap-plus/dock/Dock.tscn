@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlcingyoys2kd"]
+
+[ext_resource type="Script" path="res://addons/gridmap-plus/dock/Dock.gd" id="1_bn7c7"]
+
+[node name="Dock" type="Control"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_bn7c7")
+
+[node name="BuildButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 10.0
+offset_right = 151.0
+offset_bottom = 41.0
+text = "Enter Build Mode"
+
+[connection signal="pressed" from="BuildButton" to="." method="_on_build_button_pressed"]
