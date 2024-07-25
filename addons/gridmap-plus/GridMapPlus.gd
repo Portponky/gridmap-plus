@@ -2,6 +2,30 @@
 class_name GridMapPlus
 extends Node
 
+const MESH_LIB_META = &"_gridmap_plus"
+
+enum PlacementMode {
+	UPWARDS,
+	OUTWARDS,
+	UPWARDS_RANDOM,
+	OUTWARDS_RANDOM,
+	FULL_RANDOM
+}
+
+static func set_placement_mode(ml: MeshLibrary, item: int, placement: PlacementMode) -> void:
+	var meta = ml.get_meta(MESH_LIB_META, {})
+	if !meta.has(item):
+		meta[item] = {}
+	meta[item].placement = placement
+	ml.set_meta(MESH_LIB_META, meta)
+
+
+static func get_placement_mode(ml: MeshLibrary, item: int) -> PlacementMode:
+	var meta = ml.get_meta(MESH_LIB_META, {})
+	if meta.has(item):
+		return meta[item].placement
+	return PlacementMode.UPWARDS
+
 
 # Traces from pos to pos+line in the gridmap and returns the first non-empty cell
 # return a dictionary with the following entries

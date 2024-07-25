@@ -17,18 +17,6 @@ var _trace := { hit = false }
 var _animating_interaction := false
 
 
-# replace with basis generation
-func normal_to_orientation(normal: Vector3i) -> int:
-	match normal:
-		Vector3i.UP: return 0
-		Vector3i.DOWN: return 2
-		Vector3i.LEFT: return 1
-		Vector3i.RIGHT: return 3
-		Vector3i.FORWARD: return 14 
-		Vector3i.BACK: return 6
-	return 0
-
-
 func _ready() -> void:
 	own_world_3d = true
 	
@@ -157,6 +145,25 @@ func perform_target_block_rotation(axis: Vector3, rotation: float) -> void:
 	_animating_interaction = false
 
 
+func get_placement_basis() -> Basis:
+	var placement := GridMapPlus.get_placement_mode(grid_map.mesh_library, toolbar.brush)
+	var look := -player.global_basis.z
+	var look_axis := look.abs().max_axis_index()
+	var ortho_look := Vector3.ZERO
+	ortho_look[look_axis] = look.sign()[look_axis]
+	
+	if placement == GridMapPlus.PlacementMode.UPWARDS:
+		return Basis(ortho_look.cross(Vector3.UP), Vector3.UP, -ortho_look)
+	
+	if placement == GridMapPlus.PlacementMode.OUTWARDS:
+		if _trace.normal in [Vector3.UP, Vector3.DOWN]:
+			var side = ortho_look.cross(_trace.normal)
+			return Basis(side, _trace.normal, side.cross(_trace.normal))
+		return Basis(_trace.normal.cross(Vector3.DOWN), _trace.normal, Vector3.DOWN)
+	
+	return Basis(Vector3.RIGHT, Vector3.UP, Vector3.FORWARD)
+
+
 func _input(event) -> void:
 	const sensitivity = 0.002
 	
@@ -181,11 +188,13 @@ func _input(event) -> void:
 	if motion:
 		player.rotate_y(-motion.relative.x * sensitivity)
 		camera.rotate_x(-motion.relative.y * sensitivity)
-		camera.rotation.x = clampf(camera.rotation.x, -deg_to_rad(90), deg_to_rad(90))
+		camera.rotation.x = clampf(camera.rotation.x, -deg_to_rad(85), deg_to_rad(85))
 	
 	if _trace.hit:
 		if click and click.button_index == MOUSE_BUTTON_LEFT and click.pressed:
-			grid_map.set_cell_item(_trace.coord + _trace.inormal, toolbar.brush, normal_to_orientation(_trace.inormal))
+			var basis = get_placement_basis()
+			var orientation = grid_map.get_orthogonal_index_from_basis(basis)
+			grid_map.set_cell_item(_trace.coord + _trace.inormal, toolbar.brush, orientation)
 		
 		if click and click.button_index == MOUSE_BUTTON_MIDDLE and click.pressed:
 			toolbar.brush = grid_map.get_cell_item(_trace.coord)
