@@ -18,7 +18,7 @@ func _exit_tree() -> void:
 
 
 func _handles(object) -> bool:
-	return object is GridMap
+	return object is GridMap and object.mesh_library
 
 
 func _make_visible(visible) -> void:

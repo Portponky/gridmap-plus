@@ -152,6 +152,7 @@ func get_placement_basis() -> Basis:
 	var ortho_look := Vector3.ZERO
 	ortho_look[look_axis] = look.sign()[look_axis]
 	
+	# Simplify this function...
 	if placement == GridMapPlus.PlacementMode.UPWARDS:
 		return Basis(ortho_look.cross(Vector3.UP), Vector3.UP, -ortho_look)
 	
@@ -160,6 +161,20 @@ func get_placement_basis() -> Basis:
 			var side = ortho_look.cross(_trace.normal)
 			return Basis(side, _trace.normal, side.cross(_trace.normal))
 		return Basis(_trace.normal.cross(Vector3.DOWN), _trace.normal, Vector3.DOWN)
+	
+	if placement == GridMapPlus.PlacementMode.UPWARDS_RANDOM:
+		var random_ortho = Vector3.RIGHT.rotated(Vector3.UP, (randi() % 4) * 0.5 * PI)
+		return Basis(random_ortho.cross(Vector3.UP), Vector3.UP, -random_ortho)
+	
+	if placement == GridMapPlus.PlacementMode.OUTWARDS_RANDOM:
+		if _trace.normal in [Vector3.UP, Vector3.DOWN]:
+			var random_ortho = Vector3.RIGHT.rotated(Vector3.UP, (randi() % 4) * 0.5 * PI)
+			return Basis(random_ortho, _trace.normal, random_ortho.cross(_trace.normal))
+		var random_vert = Vector3.UP.rotated(_trace.normal, (randi() % 4) * 0.5 * PI)
+		return Basis(_trace.normal.cross(random_vert), _trace.normal, random_vert)
+	
+	if placement == GridMapPlus.PlacementMode.FULL_RANDOM:
+		return grid_map.get_basis_with_orthogonal_index(randi() % 24)
 	
 	return Basis(Vector3.RIGHT, Vector3.UP, Vector3.FORWARD)
 

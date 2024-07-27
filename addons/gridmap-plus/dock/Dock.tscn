@@ -12,12 +12,46 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_bn7c7")
 
-[node name="BuildButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 9.0
-offset_top = 10.0
-offset_right = 151.0
-offset_bottom = 41.0
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Toolbar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="BuildButton" type="Button" parent="VBox/Toolbar"]
+layout_mode = 2
 text = "Enter Build Mode"
 
-[connection signal="pressed" from="BuildButton" to="." method="_on_build_button_pressed"]
+[node name="Panel" type="Panel" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FlowContainer" type="FlowContainer" parent="VBox/Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="VBox/Panel/FlowContainer"]
+layout_mode = 2
+text = "Mode of current palette item"
+
+[node name="AlignmentMode" type="OptionButton" parent="VBox/Panel/FlowContainer"]
+layout_mode = 2
+item_count = 5
+popup/item_0/text = "Upwards"
+popup/item_1/text = "Outwards"
+popup/item_1/id = 1
+popup/item_2/text = "Upwards random"
+popup/item_2/id = 2
+popup/item_3/text = "Outwards random"
+popup/item_3/id = 3
+popup/item_4/text = "Fully random"
+popup/item_4/id = 4
+
+[connection signal="pressed" from="VBox/Toolbar/BuildButton" to="." method="_on_build_button_pressed"]
+[connection signal="item_selected" from="VBox/Panel/FlowContainer/AlignmentMode" to="." method="_on_alignment_mode_item_selected"]
