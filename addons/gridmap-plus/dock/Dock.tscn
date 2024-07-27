@@ -53,5 +53,32 @@ popup/item_3/id = 3
 popup/item_4/text = "Fully random"
 popup/item_4/id = 4
 
+[node name="HotbarMode" type="OptionButton" parent="VBox/Panel/FlowContainer"]
+layout_mode = 2
+selected = 0
+item_count = 11
+popup/item_0/text = "None"
+popup/item_1/text = "1"
+popup/item_1/id = 1
+popup/item_2/text = "2"
+popup/item_2/id = 2
+popup/item_3/text = "3"
+popup/item_3/id = 3
+popup/item_4/text = "4"
+popup/item_4/id = 4
+popup/item_5/text = "5"
+popup/item_5/id = 5
+popup/item_6/text = "6"
+popup/item_6/id = 6
+popup/item_7/text = "7"
+popup/item_7/id = 7
+popup/item_8/text = "8"
+popup/item_8/id = 8
+popup/item_9/text = "9"
+popup/item_9/id = 9
+popup/item_10/text = "0"
+popup/item_10/id = 10
+
 [connection signal="pressed" from="VBox/Toolbar/BuildButton" to="." method="_on_build_button_pressed"]
 [connection signal="item_selected" from="VBox/Panel/FlowContainer/AlignmentMode" to="." method="_on_alignment_mode_item_selected"]
+[connection signal="item_selected" from="VBox/Panel/FlowContainer/HotbarMode" to="." method="_on_hotbar_mode_item_selected"]

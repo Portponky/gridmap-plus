@@ -12,19 +12,41 @@ enum PlacementMode {
 	FULL_RANDOM
 }
 
-static func set_placement_mode(ml: MeshLibrary, item: int, placement: PlacementMode) -> void:
-	var meta = ml.get_meta(MESH_LIB_META, {})
+static func _get_item_meta(ml: MeshLibrary, item: int) -> Dictionary:
+	var meta = ml.get_meta(MESH_LIB_META, { version = 1 })
 	if !meta.has(item):
-		meta[item] = {}
-	meta[item].placement = placement
+		return {
+			placement = PlacementMode.UPWARDS,
+			hotbar = -1
+		}
+	return meta[item]
+
+
+static func _set_item_meta(ml: MeshLibrary, item: int, m: Dictionary) -> void:
+	var meta = ml.get_meta(MESH_LIB_META, { version = 1 })
+	meta[item] = m
 	ml.set_meta(MESH_LIB_META, meta)
+	ml.emit_changed()
+
+
+static func set_placement_mode(ml: MeshLibrary, item: int, placement: PlacementMode) -> void:
+	var meta = _get_item_meta(ml, item)
+	meta.placement = placement
+	_set_item_meta(ml, item, meta)
 
 
 static func get_placement_mode(ml: MeshLibrary, item: int) -> PlacementMode:
-	var meta = ml.get_meta(MESH_LIB_META, {})
-	if meta.has(item):
-		return meta[item].placement
-	return PlacementMode.UPWARDS
+	return _get_item_meta(ml, item).placement
+
+
+static func set_hotbar(ml: MeshLibrary, item: int, hotbar: int) -> void:
+	var meta = _get_item_meta(ml, item)
+	meta.hotbar = hotbar
+	_set_item_meta(ml, item, meta)
+
+
+static func get_hotbar(ml: MeshLibrary, item: int) -> int:
+	return _get_item_meta(ml, item).hotbar
 
 
 # Traces from pos to pos+line in the gridmap and returns the first non-empty cell

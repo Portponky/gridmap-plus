@@ -3,6 +3,7 @@ extends Control
 
 @onready var build_button: Button = $VBox/Toolbar/BuildButton
 @onready var alignment_mode: OptionButton = $VBox/Panel/FlowContainer/AlignmentMode
+@onready var hotbar_mode: OptionButton = $VBox/Panel/FlowContainer/HotbarMode
 
 var grid_map : GridMap = null
 
@@ -47,8 +48,23 @@ func _on_palette_item_selected(item: int) -> void:
 	_selected = _mesh_palette.get_item_metadata(item)
 	var placement = GridMapPlus.get_placement_mode(grid_map.mesh_library, _selected)
 	alignment_mode.selected = placement
+	
+	var hotbar = GridMapPlus.get_hotbar(grid_map.mesh_library, _selected)
+	match hotbar:
+		-1: hotbar_mode.selected = 0
+		0: hotbar_mode.selected = 10
+		_: hotbar_mode.selected = hotbar
 
 
 func _on_alignment_mode_item_selected(index: int) -> void:
 	GridMapPlus.set_placement_mode(grid_map.mesh_library, _selected, index)
 	grid_map.mesh_library.emit_changed()
+
+
+func _on_hotbar_mode_item_selected(index: int) -> void:
+	var hotbar: int
+	match index:
+		0: hotbar = -1
+		10: hotbar = 0
+		_: hotbar = index
+	GridMapPlus.set_hotbar(grid_map.mesh_library, _selected, hotbar)
