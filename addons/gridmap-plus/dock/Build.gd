@@ -147,36 +147,37 @@ func perform_target_block_rotation(axis: Vector3, rotation: float) -> void:
 
 func get_placement_basis() -> Basis:
 	var placement := GridMapPlus.get_placement_mode(grid_map.mesh_library, toolbar.brush)
-	var look := -player.global_basis.z
-	var look_axis := look.abs().max_axis_index()
-	var ortho_look := Vector3.ZERO
-	ortho_look[look_axis] = look.sign()[look_axis]
 	
-	# Simplify this function...
-	if placement == GridMapPlus.PlacementMode.UPWARDS:
-		return Basis(ortho_look.cross(Vector3.UP), Vector3.UP, -ortho_look)
-	
-	if placement == GridMapPlus.PlacementMode.OUTWARDS:
-		if _trace.normal in [Vector3.UP, Vector3.DOWN]:
-			var side = ortho_look.cross(_trace.normal)
-			return Basis(side, _trace.normal, side.cross(_trace.normal))
-		return Basis(_trace.normal.cross(Vector3.DOWN), _trace.normal, Vector3.DOWN)
-	
-	if placement == GridMapPlus.PlacementMode.UPWARDS_RANDOM:
-		var random_ortho = Vector3.RIGHT.rotated(Vector3.UP, (randi() % 4) * 0.5 * PI)
-		return Basis(random_ortho.cross(Vector3.UP), Vector3.UP, -random_ortho)
-	
-	if placement == GridMapPlus.PlacementMode.OUTWARDS_RANDOM:
-		if _trace.normal in [Vector3.UP, Vector3.DOWN]:
-			var random_ortho = Vector3.RIGHT.rotated(Vector3.UP, (randi() % 4) * 0.5 * PI)
-			return Basis(random_ortho, _trace.normal, random_ortho.cross(_trace.normal))
-		var random_vert = Vector3.UP.rotated(_trace.normal, (randi() % 4) * 0.5 * PI)
-		return Basis(_trace.normal.cross(random_vert), _trace.normal, random_vert)
-	
+	# deal with this one easily
 	if placement == GridMapPlus.PlacementMode.FULL_RANDOM:
 		return grid_map.get_basis_with_orthogonal_index(randi() % 24)
 	
-	return Basis(Vector3.RIGHT, Vector3.UP, Vector3.FORWARD)
+	var upwards = _trace.normal
+	if placement in [GridMapPlus.PlacementMode.UPWARDS, GridMapPlus.PlacementMode.UPWARDS_RANDOM]:
+		upwards = Vector3.UP
+	
+	# is this being built outwards but is placed on the y axis, degrade to upwards
+	if _trace.normal in [Vector3.UP, Vector3.DOWN]:
+		if placement == GridMapPlus.PlacementMode.OUTWARDS:
+			placement = GridMapPlus.PlacementMode.UPWARDS
+		if placement == GridMapPlus.PlacementMode.OUTWARDS_RANDOM:
+			placement = GridMapPlus.PlacementMode.UPWARDS_RANDOM
+	
+	# outwards facing blocks default to z down (facing up)
+	var facing = Vector3.DOWN
+	
+	if placement == GridMapPlus.PlacementMode.UPWARDS:
+		# find horizontal view direction
+		var look := -player.global_basis.z
+		var look_axis := look.abs().max_axis_index()
+		facing = Vector3.ZERO
+		facing[look_axis] = -look.sign()[look_axis]
+	elif placement == GridMapPlus.PlacementMode.UPWARDS_RANDOM:
+		facing = Vector3.RIGHT.rotated(Vector3.UP, (randi() % 4) * 0.5 * PI)
+	elif placement == GridMapPlus.PlacementMode.OUTWARDS_RANDOM:
+		facing = Vector3.UP.rotated(_trace.normal, (randi() % 4) * 0.5 * PI)
+	
+	return Basis(upwards.cross(facing), upwards, facing)
 
 
 func _input(event) -> void:
