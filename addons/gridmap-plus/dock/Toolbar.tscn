@@ -1,9 +1,20 @@
-[gd_scene load_steps=2 format=3 uid="uid://0scd31ucka55"]
+[gd_scene load_steps=3 format=3 uid="uid://0scd31ucka55"]
 
 [ext_resource type="Script" path="res://addons/gridmap-plus/dock/Toolbar.gd" id="1_o1d2f"]
+[ext_resource type="Texture2D" uid="uid://wwef06t7bh5e" path="res://addons/gridmap-plus/assets/selection.png" id="2_pj4tr"]
 
 [node name="Toolbar" type="Node2D"]
-position = Vector2(40, 40)
 script = ExtResource("1_o1d2f")
 
-[node name="Sprite" type="Sprite2D" parent="."]
+[node name="Icons" type="Node2D" parent="."]
+
+[node name="BG" type="ColorRect" parent="Icons"]
+offset_left = -36.0
+offset_top = -36.0
+offset_right = 36.0
+offset_bottom = 36.0
+color = Color(0, 0, 0, 0.501961)
+
+[node name="Selection" type="Sprite2D" parent="Icons"]
+z_index = 1
+texture = ExtResource("2_pj4tr")
