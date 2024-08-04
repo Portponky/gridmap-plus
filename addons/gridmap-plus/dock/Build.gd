@@ -11,7 +11,7 @@ var crosshair : Sprite2D
 var interstitial_mesh : MeshInstance3D
 var marker_mesh : MeshInstance3D
 var toolbar : Node2D
-
+var force_block_timer : Timer
 
 var _trace := { hit = false }
 var _animating_interaction := false
@@ -62,6 +62,11 @@ func _ready() -> void:
 	world_env.environment = environ
 	
 	add_child(world_env)
+	
+	force_block_timer = Timer.new()
+	force_block_timer.one_shot = true
+	force_block_timer.timeout.connect(_on_force_block_placement)
+	add_child(force_block_timer)
 	
 	title = "GridMap+ Build Mode"
 	
@@ -206,6 +211,13 @@ func _input(event) -> void:
 		camera.rotate_x(-motion.relative.y * sensitivity)
 		camera.rotation.x = clampf(camera.rotation.x, -deg_to_rad(85), deg_to_rad(85))
 	
+	if !_trace.hit:
+		if click and click.button_index == MOUSE_BUTTON_LEFT and click.pressed:
+			force_block_timer.start()
+	
+	if click and click.button_index == MOUSE_BUTTON_LEFT and !click.pressed:
+		force_block_timer.stop()
+	
 	if _trace.hit:
 		if click and click.button_index == MOUSE_BUTTON_LEFT and click.pressed:
 			var basis = get_placement_basis()
@@ -263,3 +275,10 @@ func _process(delta: float) -> void:
 	marker_mesh.visible = _trace.hit
 	if marker_mesh.visible:
 		marker_mesh.position = grid_map.map_to_local(_trace.coord)
+
+
+func _on_force_block_placement() -> void:
+	_trace.normal = Vector3.UP # Hack to ensure basis is found
+	var basis = get_placement_basis()
+	var orientation = grid_map.get_orthogonal_index_from_basis(basis)
+	grid_map.set_cell_item(grid_map.local_to_map(player.position), toolbar.brush, orientation)
