@@ -60,6 +60,9 @@ func _input(event: InputEvent) -> void:
 
 
 func update_brush() -> void:
+	if !mesh_library:
+		return
+	
 	if _tween:
 		_tween.kill()
 	

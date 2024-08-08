@@ -1,8 +1,10 @@
 @tool
 extends Window
 
-# Changes to this scene will be reflected in the file. So let's construct the scene from basic
-# principles at all points.
+# Changes to this scene will be reflected in the file. So let's construct the scene
+# from basic principles.
+
+signal apply_changes
 
 var grid_map: GridMap
 var player: Node3D
@@ -12,6 +14,7 @@ var interstitial_mesh : MeshInstance3D
 var marker_mesh : MeshInstance3D
 var toolbar : Node2D
 var force_block_timer : Timer
+var pause_menu : VBoxContainer
 
 var _trace := { hit = false }
 var _animating_interaction := false
@@ -68,6 +71,37 @@ func _ready() -> void:
 	force_block_timer.timeout.connect(_on_force_block_placement)
 	add_child(force_block_timer)
 	
+	var save_changes = Button.new()
+	save_changes.text = "Save changes"
+	#save_changes.add_theme_font_size_override(&"font_size", 48)
+	save_changes.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	save_changes.pressed.connect(func():
+		apply_changes.emit()
+		hide()
+	)
+	
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 24)
+	
+	var discard_changes := Button.new()
+	discard_changes.text = "Discard changes"
+	#discard_changes.add_theme_font_size_override(&"font_size", 48)
+	#discard_changes.add_theme_color_override(&"font_hover_color", Color.RED)
+	discard_changes.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	discard_changes.pressed.connect(func():
+		hide()
+	)
+	
+	pause_menu = VBoxContainer.new()
+	pause_menu.alignment = BoxContainer.ALIGNMENT_CENTER
+	pause_menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pause_menu.theme = load("res://addons/gridmap-plus/dock/Buttons.tres")
+	pause_menu.add_child(save_changes)
+	pause_menu.add_child(spacer)
+	pause_menu.add_child(discard_changes)
+	pause_menu.hide()
+	add_child(pause_menu)
+	
 	title = "GridMap+ Build Mode"
 	
 	size_changed.connect(_on_size_changed)
@@ -103,6 +137,10 @@ func set_grid_map(g: GridMap) -> void:
 	toolbar = load("res://addons/gridmap-plus/dock/Toolbar.tscn").instantiate()
 	add_child(toolbar)
 	toolbar.set_mesh_library(grid_map.mesh_library)
+	
+	# start control
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
 
 
 func write_changes(g: GridMap) -> void:
@@ -185,21 +223,32 @@ func get_placement_basis() -> Basis:
 	return Basis(upwards.cross(facing), upwards, facing)
 
 
-func _input(event) -> void:
-	const sensitivity = 0.002
-	
-	var motion = event as InputEventMouseMotion
+func _unhandled_input(event: InputEvent) -> void:
 	var click = event as InputEventMouseButton
 	var key = event as InputEventKey
 	
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		if click and click.button_index == MOUSE_BUTTON_LEFT and click.pressed:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			pause_menu.hide()
 		return
 	
 	if key and key.keycode == KEY_ESCAPE and key.pressed:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		pause_menu.show()
 		return
+
+
+
+func _input(event: InputEvent) -> void:
+	const sensitivity = 0.002
+	
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		return
+	
+	var motion = event as InputEventMouseMotion
+	var click = event as InputEventMouseButton
+	var key = event as InputEventKey
 	
 	if key and key.pressed and !key.shift_pressed:
 		match key.keycode:
