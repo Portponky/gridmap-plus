@@ -9,7 +9,7 @@ signal apply_changes
 var grid_map: GridMap
 var player: Node3D
 var camera: Camera3D
-var crosshair : Sprite2D
+var crosshair : AnimatedSprite2D
 var interstitial_mesh : MeshInstance3D
 var marker_mesh : MeshInstance3D
 var toolbar : Node2D
@@ -44,8 +44,8 @@ func _ready() -> void:
 	interstitial_mesh.visible = false
 	add_child(interstitial_mesh)
 	
-	crosshair = Sprite2D.new()
-	crosshair.texture = load("res://addons/gridmap-plus/assets/crosshair.png")
+	crosshair = AnimatedSprite2D.new()
+	crosshair.sprite_frames = load("res://addons/gridmap-plus/assets/Crosshair.tres")
 	crosshair.position = (0.5 * size).floor()
 	crosshair.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_child(crosshair)
@@ -95,7 +95,7 @@ func _ready() -> void:
 	pause_menu = VBoxContainer.new()
 	pause_menu.alignment = BoxContainer.ALIGNMENT_CENTER
 	pause_menu.set_anchors_preset(Control.PRESET_FULL_RECT)
-	pause_menu.theme = load("res://addons/gridmap-plus/dock/Buttons.tres")
+	pause_menu.theme = load("res://addons/gridmap-plus/assets/Buttons.tres")
 	pause_menu.add_child(save_changes)
 	pause_menu.add_child(spacer)
 	pause_menu.add_child(discard_changes)
@@ -262,9 +262,11 @@ func _input(event: InputEvent) -> void:
 	
 	if !_trace.hit:
 		if click and click.button_index == MOUSE_BUTTON_LEFT and click.pressed:
+			crosshair.play(&"place")
 			force_block_timer.start()
 	
 	if click and click.button_index == MOUSE_BUTTON_LEFT and !click.pressed:
+		crosshair.play(&"default")
 		force_block_timer.stop()
 	
 	if _trace.hit:
