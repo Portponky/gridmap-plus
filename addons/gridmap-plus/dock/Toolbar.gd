@@ -28,12 +28,22 @@ func set_mesh_library(ml: MeshLibrary) -> void:
 		s.position.x = 72 * n
 		$Icons.add_child(s)
 		
+		var hb = GridMapPlus.get_hotbar(mesh_library, n)
+		if hb > -1:
+			var digits = $Digits.duplicate()
+			digits.frame = hb
+			digits.visible = true
+			s.add_child(digits)
+		
 	$Icons/BG.size.x = SPACING * mesh_library.get_last_unused_item_id()
 	
 	update_brush()
 
 
 func _on_size_changed() -> void:
+	if !mesh_library:
+		return
+
 	var size = get_window().size
 	position = Vector2(SPACING, size.y - SPACING)
 	update_brush()
@@ -81,6 +91,6 @@ func update_brush() -> void:
 		# slide toolbar so the last position is last pos
 		var original_pos = brush * SPACING
 		var slide = (end_of_screen * brush) / (mesh_library.get_last_unused_item_id() - 1.0)
-		_tween.tween_property(icons, "position:x", slide - original_pos, 0.1)
+		_tween.tween_property(icons, "position:x", floor(slide - original_pos), 0.1)
 	else:
 		_tween.tween_property(icons, "position:x", 0.0, 0.1)

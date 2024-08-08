@@ -1,10 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://0scd31ucka55"]
+[gd_scene load_steps=4 format=3 uid="uid://0scd31ucka55"]
 
 [ext_resource type="Script" path="res://addons/gridmap-plus/dock/Toolbar.gd" id="1_o1d2f"]
+[ext_resource type="Texture2D" uid="uid://dhbtl6pbql7uf" path="res://addons/gridmap-plus/assets/digits.png" id="2_16og5"]
 [ext_resource type="Texture2D" uid="uid://wwef06t7bh5e" path="res://addons/gridmap-plus/assets/selection.png" id="2_pj4tr"]
 
 [node name="Toolbar" type="Node2D"]
+texture_filter = 1
 script = ExtResource("1_o1d2f")
+
+[node name="Digits" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(22, 21)
+texture = ExtResource("2_16og5")
+hframes = 10
 
 [node name="Icons" type="Node2D" parent="."]
 
