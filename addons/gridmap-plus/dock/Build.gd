@@ -19,9 +19,13 @@ var pause_menu : VBoxContainer
 var _trace := { hit = false }
 var _animating_interaction := false
 
+# Origin material must remain in memory
+var _origin_material : ShaderMaterial
+
 
 func _ready() -> void:
-	own_world_3d = true
+	# Need valid scenario rid for origin
+	world_3d = World3D.new()
 	
 	camera = Camera3D.new()
 	
@@ -73,7 +77,6 @@ func _ready() -> void:
 	
 	var save_changes = Button.new()
 	save_changes.text = "Save changes"
-	#save_changes.add_theme_font_size_override(&"font_size", 48)
 	save_changes.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	save_changes.pressed.connect(func():
 		apply_changes.emit()
@@ -85,8 +88,6 @@ func _ready() -> void:
 	
 	var discard_changes := Button.new()
 	discard_changes.text = "Discard changes"
-	#discard_changes.add_theme_font_size_override(&"font_size", 48)
-	#discard_changes.add_theme_color_override(&"font_hover_color", Color.RED)
 	discard_changes.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	discard_changes.pressed.connect(func():
 		hide()
@@ -106,6 +107,82 @@ func _ready() -> void:
 	
 	size_changed.connect(_on_size_changed)
 	close_requested.connect(_on_close_requested)
+	
+	init_origin()
+
+
+func init_origin() -> void:
+	# This is a port from Node3DEditor::_init_indicators
+	# Godot doesn't supply its individual editor components as components,
+	# so I've pulled the code for the origin out and ported it here.
+	# Therefore, the software license for the this function is that of the Godot Engine.
+
+	_origin_material = ShaderMaterial.new()
+	_origin_material.shader = load("res://addons/gridmap-plus/dock/Origin.gdshader")
+
+	# might need to be a packed vector
+	var origin_points : PackedVector3Array = [
+		Vector3(0.0, -0.5, 0.0),
+		Vector3(0.0, -0.5, 1.0),
+		Vector3(0.0, 0.5, 1.0),
+		Vector3(0.0, -0.5, 0.0),
+		Vector3(0.0, 0.5, 1.0),
+		Vector3(0.0, 0.5, 0.0)
+	]
+
+	var d = []
+	d.resize(RenderingServer.ARRAY_MAX)
+	d[RenderingServer.ARRAY_VERTEX] = origin_points
+
+	var origin_mesh := RenderingServer.mesh_create()
+	RenderingServer.mesh_add_surface_from_arrays(origin_mesh, RenderingServer.PRIMITIVE_TRIANGLES, d)
+	RenderingServer.mesh_surface_set_material(origin_mesh, 0, _origin_material.get_rid())
+	
+	var origin_multimesh := RenderingServer.multimesh_create()
+	RenderingServer.multimesh_set_mesh(origin_multimesh, origin_mesh)
+	RenderingServer.multimesh_allocate_data(origin_multimesh, 12, RenderingServer.MULTIMESH_TRANSFORM_3D, true, false)
+	RenderingServer.multimesh_set_visible_instances(origin_multimesh, -1)
+	
+	var distances = [
+		-1000000.0,
+		-1000.0,
+		0.0,
+		1000.0,
+		1000000.0
+	]
+
+	for i in 3:
+		var origin_color : Color
+		match i:
+			0: origin_color = get_theme_color(&"axis_x_color", &"Editor")
+			1: origin_color = get_theme_color(&"axis_y_color", &"Editor")
+			2: origin_color = get_theme_color(&"axis_z_color", &"Editor")
+		
+		var axis := Vector3.ZERO
+		axis[i] = 1.0
+		
+		for j in 4:
+			var t = Transform3D()
+			if distances[j] > 0.0:
+				t = t.scaled(axis * distances[j + 1])
+				t = t.translated((axis * distances[j]))
+			else:
+				t = t.scaled(axis * distances[j])
+				t = t.translated(axis * distances[j + 1])
+			
+			RenderingServer.multimesh_instance_set_transform(origin_multimesh, i * 4 + j, t)
+			RenderingServer.multimesh_instance_set_color(origin_multimesh, i * 4 + j, origin_color)
+	
+	var origin_instance := RenderingServer.instance_create2(origin_multimesh, world_3d.scenario)
+	RenderingServer.instance_geometry_set_flag(origin_instance, RenderingServer.INSTANCE_FLAG_IGNORE_OCCLUSION_CULLING, true)
+	RenderingServer.instance_geometry_set_flag(origin_instance, RenderingServer.INSTANCE_FLAG_USE_BAKED_LIGHT, false)
+	RenderingServer.instance_geometry_set_cast_shadows_setting(origin_instance, RenderingServer.SHADOW_CASTING_SETTING_OFF)
+	
+	tree_exited.connect(func():
+		RenderingServer.free_rid(origin_instance)
+		RenderingServer.free_rid(origin_multimesh)
+		RenderingServer.free_rid(origin_mesh)
+	)
 
 
 func _on_size_changed() -> void:
