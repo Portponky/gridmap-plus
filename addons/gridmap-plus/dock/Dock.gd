@@ -1,14 +1,18 @@
 @tool
-extends Control
+extends VBoxContainer
 
-@onready var build_button: Button = $VBox/Toolbar/BuildButton
-@onready var alignment_mode: OptionButton = $VBox/Panel/FlowContainer/AlignmentMode
-@onready var hotbar_mode: OptionButton = $VBox/Panel/FlowContainer/HotbarMode
+@onready var build_button: Button = %BuildButton
+@onready var alignment_mode: OptionButton = %AlignmentMode
+@onready var hotbar_mode: OptionButton = %HotbarMode
 
-var grid_map : GridMap = null
+var grid_map : GridMap = null:
+	set(x):
+		grid_map = x
+		%PanelContents.hide()
 
 var _selected : int = -1
 var _mesh_palette : ItemList
+
 
 func _ready() -> void:
 	var grid_map_editor = EditorInterface.get_base_control().find_children("*", "GridMapEditor", true, false)
@@ -45,6 +49,10 @@ func _on_palette_item_selected(item: int) -> void:
 	# Prevent access from dock.tscn
 	if !grid_map:
 		return
+	
+	%PanelContents.show()
+	%ItemImage.texture = _mesh_palette.get_item_icon(item)
+	%ItemName.text = _mesh_palette.get_item_text(item)
 	
 	_selected = _mesh_palette.get_item_metadata(item)
 	var placement = GridMapPlus.get_placement_mode(grid_map.mesh_library, _selected)
