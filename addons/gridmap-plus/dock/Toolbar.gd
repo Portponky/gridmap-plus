@@ -61,13 +61,13 @@ func _input(event: InputEvent) -> void:
 		return
 	
 	var t = (brush + 1) % mesh_library.get_last_unused_item_id()
+	
 	while t != brush:
 		if GridMapPlus.get_hotbar(mesh_library, t) == hb:
 			brush = t
 			return
 		
 		t = (t + 1) % mesh_library.get_last_unused_item_id()
-
 
 func update_brush() -> void:
 	if !mesh_library:

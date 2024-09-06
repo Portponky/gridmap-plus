@@ -1,7 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://dlcingyoys2kd"]
+[gd_scene load_steps=4 format=3 uid="uid://dlcingyoys2kd"]
 
 [ext_resource type="Script" path="res://addons/gridmap-plus/dock/Dock.gd" id="1_bn7c7"]
 [ext_resource type="Texture2D" uid="uid://c7o451hql58hh" path="res://addons/gridmap-plus/assets/icons/Build.svg" id="2_ldijc"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_x3fa8"]
+color = Color(0.389287, 0.389287, 0.389287, 1)
+thickness = 2
+vertical = true
 
 [node name="Dock" type="VBoxContainer"]
 custom_minimum_size = Vector2(0, 180)
@@ -34,36 +39,150 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel/PanelContents"]
+[node name="GeneralOptions" type="MarginContainer" parent="Panel/PanelContents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/PanelContents/GeneralOptions"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.988235, 0.498039, 0.498039, 1)
+text = "General Options"
+
+[node name="GridContainer" type="GridContainer" parent="Panel/PanelContents/GeneralOptions/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="Label6" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Light Type"
+
+[node name="LightType" type="OptionButton" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Directional"
+popup/item_1/text = "Omni"
+popup/item_1/id = 1
+
+[node name="Label" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Light Position"
+
+[node name="LightPosition" type="LineEdit" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "4.0, 5.0, 3.0"
+expand_to_text_length = true
+
+[node name="Label2" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Light Rotation
+"
+
+[node name="LightRotation" type="LineEdit" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-45, 53.1301, 0"
+expand_to_text_length = true
+
+[node name="Label3" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Light Energy"
+
+[node name="LightEnergy" type="HSlider" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+max_value = 16.0
+step = 0.1
+value = 1.0
+
+[node name="Label4" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Light Indirect Energy"
+
+[node name="LightIndirectEnergy" type="HSlider" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+max_value = 16.0
+step = 0.1
+value = 1.0
+
+[node name="LightAngularDistanceLabel" type="Label" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Light Angular Distance"
+
+[node name="LightAngularDistance" type="HSlider" parent="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+max_value = 90.0
+
+[node name="VSeparator" type="VSeparator" parent="Panel/PanelContents"]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_x3fa8")
+
+[node name="MeshOptions" type="MarginContainer" parent="Panel/PanelContents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/PanelContents/MeshOptions"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/PanelContents/MeshOptions/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.988235, 0.498039, 0.498039, 1)
+text = "Mesh Options"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/PanelContents/MeshOptions/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="Panel/PanelContents/MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="ItemImage" type="TextureRect" parent="Panel/PanelContents/MarginContainer/VBox"]
+[node name="ItemImage" type="TextureRect" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/MarginContainer/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 
-[node name="ItemName" type="Label" parent="Panel/PanelContents/MarginContainer/VBox"]
+[node name="ItemName" type="Label" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/MarginContainer/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "ItemName"
 horizontal_alignment = 1
 
-[node name="GridContainer" type="GridContainer" parent="Panel/PanelContents"]
+[node name="GridContainer" type="GridContainer" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="Panel/PanelContents/GridContainer"]
+[node name="Label" type="Label" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Placement mode"
 
-[node name="AlignmentMode" type="OptionButton" parent="Panel/PanelContents/GridContainer"]
+[node name="AlignmentMode" type="OptionButton" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 item_count = 5
@@ -77,11 +196,11 @@ popup/item_3/id = 3
 popup/item_4/text = "Fully random"
 popup/item_4/id = 4
 
-[node name="Label2" type="Label" parent="Panel/PanelContents/GridContainer"]
+[node name="Label2" type="Label" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Hotbar shortcut"
 
-[node name="HotbarMode" type="OptionButton" parent="Panel/PanelContents/GridContainer"]
+[node name="HotbarMode" type="OptionButton" parent="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 selected = 0
@@ -109,5 +228,13 @@ popup/item_10/text = "0"
 popup/item_10/id = 10
 
 [connection signal="pressed" from="Toolbar/BuildButton" to="." method="_on_build_button_pressed"]
-[connection signal="item_selected" from="Panel/PanelContents/GridContainer/AlignmentMode" to="." method="_on_alignment_mode_item_selected"]
-[connection signal="item_selected" from="Panel/PanelContents/GridContainer/HotbarMode" to="." method="_on_hotbar_mode_item_selected"]
+[connection signal="item_selected" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightType" to="." method="_on_light_type_item_selected"]
+[connection signal="focus_exited" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightPosition" to="." method="_on_light_position_focus_exited"]
+[connection signal="text_submitted" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightPosition" to="." method="_on_light_position_text_submitted"]
+[connection signal="focus_exited" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightRotation" to="." method="_on_light_rotation_focus_exited"]
+[connection signal="text_submitted" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightRotation" to="." method="_on_light_rotation_text_submitted"]
+[connection signal="drag_ended" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightEnergy" to="." method="_on_light_energy_drag_ended"]
+[connection signal="drag_ended" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightIndirectEnergy" to="." method="_on_light_indirect_energy_drag_ended"]
+[connection signal="drag_ended" from="Panel/PanelContents/GeneralOptions/VBoxContainer/GridContainer/LightAngularDistance" to="." method="_on_light_angular_distance_drag_ended"]
+[connection signal="item_selected" from="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/GridContainer/AlignmentMode" to="." method="_on_alignment_mode_item_selected"]
+[connection signal="item_selected" from="Panel/PanelContents/MeshOptions/VBoxContainer/HBoxContainer/GridContainer/HotbarMode" to="." method="_on_hotbar_mode_item_selected"]

@@ -5,6 +5,7 @@ extends Window
 # from basic principles.
 
 signal apply_changes
+signal builder_ready
 
 var grid_map: GridMap
 var player: Node3D
@@ -16,6 +17,9 @@ var toolbar : Node2D
 var force_block_timer : Timer
 var pause_menu : VBoxContainer
 
+var directional_light: DirectionalLight3D
+var omni_light: OmniLight3D
+
 var _trace := { hit = false }
 var _animating_interaction := false
 
@@ -24,6 +28,7 @@ var _origin_material : ShaderMaterial
 
 
 func _ready() -> void:
+	
 	# Need valid scenario rid for origin
 	world_3d = World3D.new()
 	
@@ -39,10 +44,14 @@ func _ready() -> void:
 	
 	add_child(player)
 	
-	var light = DirectionalLight3D.new()
-	add_child(light)
-	light.position = Vector3(4.0, 5.0, 3.0)
-	light.look_at(Vector3.ZERO)
+	directional_light = DirectionalLight3D.new()
+	add_child(directional_light)
+	directional_light.position = Vector3(4.0, 5.0, 3.0)
+	directional_light.look_at(Vector3.ZERO)
+	
+	omni_light = OmniLight3D.new()
+	add_child(omni_light)
+	omni_light.visible = false
 	
 	interstitial_mesh = MeshInstance3D.new()
 	interstitial_mesh.visible = false
@@ -109,6 +118,8 @@ func _ready() -> void:
 	close_requested.connect(_on_close_requested)
 	
 	init_origin()
+	# Emit the signal when everything is set up
+	emit_signal("builder_ready")
 
 
 func init_origin() -> void:
@@ -410,3 +421,38 @@ func _on_force_block_placement() -> void:
 	var basis = get_placement_basis()
 	var orientation = grid_map.get_orthogonal_index_from_basis(basis)
 	grid_map.set_cell_item(grid_map.local_to_map(player.position), toolbar.brush, orientation)
+
+
+func set_light_parameters(light_type, chosen_light_position : Vector3,
+	chosen_light_rotation : Vector3, chosen_light_energy : float, 
+	chosen_light_indirect_energy : float, chosen_light_angular_distance : float) -> void:
+
+	var light: Node3D
+	
+	if light_type == "directional": 
+		directional_light.visible = true
+		omni_light.visible = false
+		light = directional_light
+		
+	elif light_type == "omni":
+		directional_light.visible = false
+		omni_light.visible = true
+		light = omni_light
+		
+	if is_instance_valid(light):
+		light.position = chosen_light_position
+		light.rotation_degrees = chosen_light_rotation
+		light.light_energy = chosen_light_energy
+		light.light_indirect_energy = chosen_light_indirect_energy
+		if light_type == "directional":
+			light.light_angular_distance = chosen_light_angular_distance
+			
+		print("Light set to:")
+		print("Light type: ", light_type)
+		print("Position: ", light.position)
+		print("Rotation in degrees: ", light.rotation_degrees)
+		print("Energy: ", light.light_energy)
+		print("Indirect Energy: ", light.light_indirect_energy)
+		if light_type == "directional":
+			print("Angular Distance: ", light.light_angular_distance)
+		
