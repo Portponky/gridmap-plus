@@ -5,6 +5,10 @@ extends VBoxContainer
 @onready var alignment_mode: OptionButton = %AlignmentMode
 @onready var hotbar_mode: OptionButton = %HotbarMode
 
+var scene_map:Node3D = null:
+	set(x):
+		scene_map = x
+
 var grid_map : GridMap = null:
 	set(x):
 		grid_map = x
@@ -33,6 +37,7 @@ func _on_build_button_pressed() -> void:
 	# approach this is to manually build the scene when the editor is opened.
 	var window = Window.new()
 	window.set_script(load("res://addons/gridmap-plus/dock/Build.gd"))
+	window.set_scene_map(scene_map,grid_map)
 	window.set_grid_map(grid_map)
 	window.size = get_window().size - 100 * Vector2i.ONE
 	window.apply_changes.connect(func():
