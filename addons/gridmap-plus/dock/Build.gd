@@ -192,6 +192,14 @@ func _on_size_changed() -> void:
 func _on_close_requested() -> void:
 	hide()
 
+func set_scene_map(s,g):
+	if s:
+		var packed_scene = PackedScene.new()
+		packed_scene.pack(s)
+		var instance = packed_scene.instantiate()
+		var gridmap_temp = instance.get_child(g.get_index())
+		gridmap_temp.visible = false
+		add_child(instance)
 
 func set_grid_map(g: GridMap) -> void:
 	grid_map = g.duplicate()
@@ -359,7 +367,7 @@ func _input(event: InputEvent) -> void:
 			grid_map.set_cell_item(_trace.coord, GridMap.INVALID_CELL_ITEM)
 		
 		if key and key.pressed and key.shift_pressed:
-			var relative_up : Vector3 = _trace.normal.cross(camera.global_basis.x)
+			var relative_up : Vector3 = _trace.normal.cross(grid_map.global_transform.basis.inverse() * camera.global_basis.x)
 			relative_up = relative_up.normalized()
 			var n := relative_up.abs().max_axis_index()
 			var ortho_up := Vector3.ZERO
@@ -403,10 +411,11 @@ func _process(delta: float) -> void:
 	marker_mesh.visible = _trace.hit
 	if marker_mesh.visible:
 		marker_mesh.position = grid_map.map_to_local(_trace.coord)
+		marker_mesh.global_transform = grid_map.global_transform * Transform3D(Basis(), grid_map.map_to_local(_trace.coord))
 
 
 func _on_force_block_placement() -> void:
-	_trace.normal = Vector3.UP # Hack to ensure basis is found
+	_trace.normal = grid_map.global_transform.basis * Vector3.UP # Hack to ensure basis is found
 	var basis = get_placement_basis()
 	var orientation = grid_map.get_orthogonal_index_from_basis(basis)
 	grid_map.set_cell_item(grid_map.local_to_map(player.position), toolbar.brush, orientation)

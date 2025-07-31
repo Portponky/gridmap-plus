@@ -27,4 +27,5 @@ func _make_visible(visible) -> void:
 
 func _edit(object) -> void:
 	if object is GridMap:
+		dock.scene_map = object.get_tree().edited_scene_root
 		dock.grid_map = object

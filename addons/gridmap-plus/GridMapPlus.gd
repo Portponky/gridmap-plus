@@ -49,28 +49,33 @@ static func get_hotbar(ml: MeshLibrary, item: int) -> int:
 	return _get_item_meta(ml, item).hotbar
 
 
-# Traces from pos to pos+line in the gridmap and returns the first non-empty cell
-# return a dictionary with the following entries
-# hit -> boolean, if the trace hit something
-# t -> parameter of line followed, between 0.0 and 1.0
-# coord -> ending cell
-# normal -> vector3 normal vector of cell hit (will match an axis) (only if hit)
-# inormal -> same as normal but vector3i (only if hit)
+## Traces from pos to pos+line in the gridmap and returns the first non-empty cell
+## return a dictionary with the following entries
+## hit -> boolean, if the trace hit something
+## t -> parameter of line followed, between 0.0 and 1.0
+## coord -> ending cell
+## normal -> vector3 normal vector of cell hit (will match an axis) (only if hit)
+## inormal -> same as normal but vector3i (only if hit)
 static func trace(gridmap: GridMap, pos: Vector3, line: Vector3) -> Dictionary:
-	# Find the origin point of the models within the gridmap cell
+	## Transform position and line to the GridMap's local space
+	var global_transform_inv = gridmap.global_transform.inverse()
+	var local_pos = global_transform_inv * pos
+	var local_line = global_transform_inv.basis * line
+
+	## Find the origin point of the models within the gridmap cell
 	var model_origin := 0.5 * gridmap.cell_size * Vector3(gridmap.cell_center_x, gridmap.cell_center_y, gridmap.cell_center_z)
 	
-	# Correct position to take account of non-centered axes
-	pos += 0.5 * gridmap.cell_size - model_origin
+	## Correct position to take account of non-centered axes
+	local_pos += 0.5 * gridmap.cell_size - model_origin
 	
-	var coord := gridmap.local_to_map(pos)
+	var coord := gridmap.local_to_map(local_pos)
 	var origin := gridmap.map_to_local(coord) - model_origin
-	var offset := pos - origin
+	var offset = local_pos - origin
 	
-	var step := line.sign()
-	var rate := gridmap.cell_size / line.abs()
-	var edge := (0.5 * Vector3.ONE + 0.5 * step) * gridmap.cell_size
-	var next := (edge - offset).abs() / line.abs()
+	var step = local_line.sign()
+	var rate = gridmap.cell_size / local_line.abs()
+	var edge = (0.5 * Vector3.ONE + 0.5 * step) * gridmap.cell_size
+	var next = (edge - offset).abs() / local_line.abs()
 	
 	const invalid_next = 10.0
 	if step.x == 0.0: next.x = invalid_next
@@ -93,12 +98,13 @@ static func trace(gridmap: GridMap, pos: Vector3, line: Vector3) -> Dictionary:
 		next[n] += rate[n];
 		
 		if gridmap.get_cell_item(coord) != GridMap.INVALID_CELL_ITEM:
+			var global_normal = gridmap.global_transform.basis * normal
 			return {
 				hit = true,
 				t = t,
 				coord = coord,
-				normal = normal,
-				inormal = Vector3i(normal)
+				normal =  global_normal.normalized(),
+				inormal = Vector3i(global_normal.round())
 			}
 	
 	return {
